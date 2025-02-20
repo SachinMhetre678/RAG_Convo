@@ -13,15 +13,4 @@ langsmith
 requests
 werkzeug
 pypdf
-pikepdfflask
-python-dotenv
-langchain
-langchain-community
-langchain-core
-langchain-groq
-langchain-huggingface
-langchain-text-splitters
-faiss-cpu
-torch
-transformers
 pikepdf
