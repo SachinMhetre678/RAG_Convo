@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DocuChat AI 🤖 - Next-Gen Document Intelligence</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .morphic-bg {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .morphic-bg::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+
+        html, body {
+            max-width: 100%;
+            overflow-x: hidden; /* Prevent horizontal scrolling */
+        }
+
+        /* Ensure all content is contained properly */
+        .container {
+            width: 100%;
+            max-width: 100%;
+            box-sizing: border-box;
+            overflow-x: hidden;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .gradient-text {
+            background: linear-gradient(120deg, #84fab0 0%, #8fd3f4 100%);
+            -webkit-background-clip: text;
+            background-clip: text; /* Add this line for compatibility */
+            -webkit-text-fill-color: transparent;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+            100% { transform: translateY(0px); }
+        }
+
+        .floating {
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .chat-bubble {
+            animation: bounce-in 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+        
+        @keyframes bounce-in {
+            0% { transform: scale(0); opacity: 0; }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .file-drop-zone {
+            background: rgba(255, 255, 255, 0.03);
+            border: 2px dashed rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .file-drop-zone:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+
+        .loading-dots:after {
+            content: '.';
+            animation: dots 1.5s steps(5, end) infinite;
+        }
+
+        @keyframes dots {
+            0%, 20% { content: '.'; }
+            40% { content: '..'; }
+            60% { content: '...'; }
+            80% { content: '....'; }
+            100% { content: '.'; }
+        }
+
+        .upload-progress {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .upload-progress-bar {
+            background: linear-gradient(90deg, #84fab0, #8fd3f4);
+            transition: width 0.3s ease;
+        }
+
+        /* FIXED: Ensure chat messages are visible */
+        #chatMessages p {
+            color: white !important; /* Fully white text */
+            font-weight: 500;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        /* FIXED: Improve chat bubble contrast */
+        .chat-bubble {
+            background: rgba(30, 30, 60, 0.75) !important; /* Darker background with less transparency */
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            color: white !important;
+        }
+
+        /* FIXED: User messages specific styling */
+        #chatMessages .chat-bubble.ml-auto {
+            background: rgba(80, 60, 200, 0.75) !important; /* Darker color for user messages */
+        }
+
+        /* FIXED: System messages specific styling */
+        #chatMessages .chat-bubble[class*="bg-yellow"] {
+            background: rgba(245, 158, 11, 0.4) !important; /* More visible yellow for system messages */
+        }
+
+        /* FIXED: Input field styling for better visibility */
+        #userInput, #apiKey {
+            color: white !important;
+            font-weight: 500;
+            background-color: rgba(0, 0, 0, 0.2) !important; /* Darker input background */
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        #userInput::placeholder, #apiKey::placeholder {
+            color: rgba(255, 255, 255, 0.7); /* Much brighter placeholder text */
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Animated Background */
+        .animated-bg {
+            position: fixed; /* Change from absolute to fixed */
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none; /* This prevents it from capturing scroll events */
+        }
+
+        /* FIXED: Make all text in chat bubbles visible with strong contrast */
+        #chatMessages .chat-bubble p,
+        #chatMessages .chat-bubble .text-white\/60,
+        #chatMessages .chat-bubble .text-white\/90 {
+            color: white !important;
+            opacity: 1 !important;
+        }
+
+        /* Make sure all text in the chat input is fully visible */
+        #userInput, #apiKey, .text-white {
+            color: white !important;
+        }
+
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            animation: float-random 20s infinite linear;
+        }
+
+        @keyframes float-random {
+            0% { transform: translate(0, 0); }
+            25% { transform: translate(100px, 100px); }
+            50% { transform: translate(-100px, 200px); }
+            75% { transform: translate(200px, -100px); }
+            100% { transform: translate(0, 0); }
+        }
+
+        .container {
+            padding-left: max(6px, env(safe-area-inset-left));
+            padding-right: max(6px, env(safe-area-inset-right));
+        }
+
+        @media (max-width: 768px) {
+            /* Adjust padding for mobile */
+            .container {
+                padding-left: 12px;
+                padding-right: 12px;
+            }
+        }
+    </style>
+</head>
+<body class="morphic-bg min-h-screen text-white">
+    <!-- Animated Background -->
+    <div class="animated-bg">
+        <div class="particle" style="width: 100px; height: 100px; top: 10%; left: 10%; animation-delay: 0s;"></div>
+        <div class="particle" style="width: 150px; height: 150px; top: 60%; left: 80%; animation-delay: -5s;"></div>
+        <div class="particle" style="width: 80px; height: 80px; top: 40%; left: 30%; animation-delay: -10s;"></div>
+        <div class="particle" style="width: 120px; height: 120px; top: 70%; left: 20%; animation-delay: -15s;"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="glass-card">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-2">
+                    <span class="text-3xl">🤖</span>
+                    <span class="text-2xl font-bold gradient-text">DocuChat AI</span>
+                </div>
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#features" class="text-white/80 hover:text-white transition-colors">Features</a>
+                    <a href="#demo" class="text-white/80 hover:text-white transition-colors">Live Demo</a>
+                    <a href="#start" class="glass-card px-6 py-2 rounded-full hover:bg-white/20 transition-all">
+                        Try Now 🚀
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="container mx-auto px-6 py-24">
+        <div class="text-center mb-20">
+            <div class="floating inline-block mb-8">
+                <span class="text-7xl">🌟</span>
+            </div>
+            <h1 class="text-6xl font-bold mb-8">
+                Transform Your Documents with
+                <span class="gradient-text">AI Magic</span>
+            </h1>
+            <p class="text-xl text-white/80 mb-12 max-w-2xl mx-auto">
+                Upload your PDFs and watch them come to life through intelligent conversation. Get instant answers, insights, and analysis powered by cutting-edge AI technology.
+            </p>
+            <div class="flex justify-center gap-6">
+                <a href="#start" class="glass-card px-8 py-4 rounded-full text-lg font-semibold hover:bg-white/20 transition-all flex items-center gap-2">
+                    Get Started <i class="fas fa-arrow-right"></i>
+                </a>
+                <a href="#demo" class="px-8 py-4 rounded-full text-lg font-semibold border border-white/20 hover:bg-white/10 transition-all flex items-center gap-2">
+                    Watch Demo <i class="fas fa-play"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- Features Section -->
+        <div id="features" class="py-20">
+            <h2 class="text-4xl font-bold text-center mb-16">Revolutionary Features 🚀</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="feature-card p-8 rounded-2xl">
+                    <div class="text-4xl mb-6">🧠</div>
+                    <h3 class="text-xl font-semibold mb-4">AI-Powered Analysis</h3>
+                    <p class="text-white/80">Advanced natural language processing for deep document understanding and context-aware responses.</p>
+                </div>
+                <div class="feature-card p-8 rounded-2xl">
+                    <div class="text-4xl mb-6">⚡️</div>
+                    <h3 class="text-xl font-semibold mb-4">Real-time Processing</h3>
+                    <p class="text-white/80">Lightning-fast document processing and instant responses to your queries.</p>
+                </div>
+                <div class="feature-card p-8 rounded-2xl">
+                    <div class="text-4xl mb-6">🔒</div>
+                    <h3 class="text-xl font-semibold mb-4">Enterprise Security</h3>
+                    <p class="text-white/80">Bank-grade encryption and privacy measures to keep your documents secure.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main App Section -->
+        <div id="start" class="py-20">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Left Column: File Upload -->
+                <div class="glass-card rounded-2xl p-8">
+                    <h2 class="text-2xl font-semibold mb-6 flex items-center">
+                        <i class="fas fa-file-upload mr-2"></i>
+                        Upload Documents
+                    </h2>
+                    <div id="dropZone" class="file-drop-zone rounded-xl p-8 text-center cursor-pointer">
+                        <div class="mb-4">
+                            <i class="fas fa-cloud-upload-alt text-5xl"></i>
+                        </div>
+                        <p class="text-white/80 mb-2">Drag & drop your PDF files here</p>
+                        <p class="text-sm text-white/60">or</p>
+                        <button class="glass-card px-6 py-2 rounded-full mt-2 hover:bg-white/20 transition-all">
+                            Browse Files
+                        </button>
+                        <input type="file" id="fileInput" multiple accept=".pdf" class="hidden">
+                    </div>
+                    <div id="uploadProgress" class="upload-progress mt-6 hidden">
+                        <div class="upload-progress-bar h-1" style="width: 0%"></div>
+                    </div>
+                    <div id="fileList" class="mt-6 space-y-2"></div>
+                </div>
+
+                <!-- Right Column: Chat Interface -->
+                <div class="glass-card rounded-2xl p-8">
+                    <h2 class="text-2xl font-semibold mb-6 flex items-center">
+                        <i class="fas fa-comments mr-2"></i>
+                        Chat Interface
+                    </h2>
+                    <div class="mb-6">
+                        <input type="password" id="apiKey" placeholder="Enter your Groq API key" 
+                               class="w-full p-3 bg-white/5 border border-white/20 rounded-xl focus:ring-2 focus:ring-white/30 focus:border-transparent text-white placeholder-white/50">
+                    </div>
+                    <div id="chatMessages" class="h-96 overflow-y-auto mb-6 p-4 bg-white/5 rounded-xl border border-white/20">
+                        <div class="chat-bubble glass-card p-4 rounded-xl mb-4 max-w-3/4">
+                            <p class="text-white/90">
+                                👋 Hello! I'm your AI document assistant. Upload some PDFs and let's explore them together!
+                            </p>
+                        </div>
+                    </div>
+                    <div class="flex gap-2">
+                        <input type="text" id="userInput" placeholder="Ask me anything about your documents..." 
+                               class="flex-1 p-3 bg-white/5 border border-white/20 rounded-xl focus:ring-2 focus:ring-white/30 focus:border-transparent text-white placeholder-white/50">
+                        <button id="sendBtn" class="glass-card px-6 py-2 rounded-xl hover:bg-white/20 transition-all">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tech Stack Section -->
+        <div class="py-20">
+            <h2 class="text-4xl font-bold text-center mb-16">Powered by Cutting-Edge Tech 💻</h2>
+            <div class="glass-card p-8 rounded-2xl">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+                    <div class="p-4">
+                        <div class="text-4xl mb-4">🤖</div>
+                        <h3 class="font-semibold mb-2">Groq AI</h3>
+                        <p class="text-white/80">Advanced LLM</p>
+                    </div>
+                    <div class="p-4">
+                        <div class="text-4xl mb-4">⚡️</div>
+                        <h3 class="font-semibold mb-2">Real-time</h3>
+                        <p class="text-white/80">Processing</p>
+                    </div>
+                    <div class="p-4">
+                        <div class="text-4xl mb-4">🔒</div>
+                        <h3 class="font-semibold mb-2">Secure</h3>
+                        <p class="text-white/80">Encryption</p>
+                    </div>
+                    <div class="p-4">
+                        <div class="text-4xl mb-4">📱</div>
+                        <h3 class="font-semibold mb-2">Responsive</h3>
+                        <p class="text-white/80">Design</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="border-t border-white/10">
+        <div class="container mx-auto px-6 py-12">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-12">
+                <div>
+                    <div class="flex items-center space-x-2 mb-4">
+                        <span class="text-3xl">🤖</span>
+                        <span class="text-xl font-bold gradient-text">DocuChat AI</span>
+                    </div>
+                    <p class="text-white/80">Next-generation document intelligence powered by cutting-edge AI technology.</p>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">Quick Links</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#features" class="text-white/80 hover:text-white">Features</a></li>
+                        <li><a href="#demo" class="text-white/80 hover:text-white">Demo</a></li>
+                        <li><a href="#start" class="text-white/80 hover:text-white">Get Started</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">Resources</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-white/80 hover:text-white">Documentation</a></li>
+                        <li><a href="#" class="text-white/80 hover:text-white">API Reference</a></li>
+                        <li><a href="#" class="text-white/80 hover:text-white">Support</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">Connect</h4>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-white/80 hover:text-white"><i class="fab fa-github"></i></a>
+                        <a href="#" class="text-white/80 hover:text-white"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-white/80 hover:text-white"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-white/10 mt-12 pt-8 text-center text-white/60">
+                <p>© 2024 DocuChat AI. Built with 💜 for Hackathon</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const dropZone = document.getElementById('dropZone');
+            const fileInput = document.getElementById('fileInput');
+            const fileList = document.getElementById('fileList');
+            const chatMessages = document.getElementById('chatMessages');
+            const userInput = document.getElementById('userInput');
+            const sendBtn = document.getElementById('sendBtn');
+            const apiKeyInput = document.getElementById('apiKey');
+            const uploadProgress = document.getElementById('uploadProgress');
+            const uploadProgressBar = uploadProgress.querySelector('.upload-progress-bar');
+
+            // File Upload Handling
+            dropZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropZone.classList.add('bg-white/10');
+            });
+
+            dropZone.addEventListener('dragleave', () => {
+                dropZone.classList.remove('bg-white/10');
+            });
+
+            dropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('bg-white/10');
+                const files = Array.from(e.dataTransfer.files).filter(file => file.type === 'application/pdf');
+                if (files.length > 0) {
+                    handleFiles(files);
+                } else {
+                    addMessage('System', '⚠️ Please upload PDF files only.');
+                }
+            });
+
+            dropZone.addEventListener('click', () => {
+                fileInput.click();
+            });
+
+            fileInput.addEventListener('change', () => {
+                const files = Array.from(fileInput.files).filter(file => file.type === 'application/pdf');
+                if (files.length > 0) {
+                    handleFiles(files);
+                } else {
+                    addMessage('System', '⚠️ Please select PDF files only.');
+                }
+            });
+
+            function handleFiles(files) {
+                uploadProgress.classList.remove('hidden');
+                uploadProgressBar.style.width = '0%';
+
+                const formData = new FormData();
+                files.forEach(file => {
+                    if (file.type === 'application/pdf') {
+                        formData.append('files[]', file);
+                    }
+                });
+
+                let progress = 0;
+                const progressInterval = setInterval(() => {
+                    progress += 5;
+                    if (progress <= 90) {
+                        uploadProgressBar.style.width = `${progress}%`;
+                    }
+                }, 100);
+
+                fetch('/upload_pdfs', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json().then(data => ({status: response.status, body: data})))
+                .then(({status, body}) => {
+                    clearInterval(progressInterval);
+                    uploadProgressBar.style.width = '100%';
+                    
+                    if (status === 200 && body.success) {
+                        updateFileList(files);
+                        addMessage('System', '✨ PDFs uploaded successfully! Ask me anything about them!');
+                    } else {
+                        throw new Error(body.error || 'Upload failed');
+                    }
+                    
+                    setTimeout(() => {
+                        uploadProgress.classList.add('hidden');
+                    }, 1000);
+                })
+                .catch(error => {
+                    clearInterval(progressInterval);
+                    uploadProgress.classList.add('hidden');
+                    addMessage('System', '❌ Upload failed: ' + error.message);
+                    console.error('Upload error:', error);
+                });
+            }
+
+            function updateFileList(files) {
+                fileList.innerHTML = Array.from(files)
+                    .map(file => `
+                        <div class="flex items-center justify-between text-sm text-white/80 glass-card p-3 rounded-xl">
+                            <div class="flex items-center">
+                                <i class="fas fa-file-pdf mr-2"></i>
+                                ${file.name}
+                            </div>
+                            <span class="text-white/60">${formatFileSize(file.size)}</span>
+                        </div>
+                    `).join('');
+            }
+
+            function formatFileSize(bytes) {
+                if (bytes === 0) return '0 Bytes';
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            }
+
+            // Chat Functionality
+            sendBtn.addEventListener('click', sendMessage);
+            userInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') sendMessage();
+            });
+
+            function sendMessage() {
+                const message = userInput.value.trim();
+                const apiKey = apiKeyInput.value.trim();
+                
+                if (!message) return;
+                if (!apiKey) {
+                    addMessage('System', '🔑 Please enter your Groq API key first.');
+                    return;
+                }
+
+                addMessage('User', message);
+                userInput.value = '';
+
+                const typingIndicator = addMessage('Assistant', '<span class="loading-dots">Thinking</span>', true);
+
+                fetch('/ask', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        question: message,
+                        api_key: apiKey,
+                        session_id: localStorage.getItem('session_id')
+                    })
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    typingIndicator.remove();
+                    
+                    if (data.error) {
+                        throw new Error(data.error);
+                    } else {
+                        addMessage('Assistant', data.answer);
+                    }
+                })
+                .catch(error => {
+                    typingIndicator.remove();
+                    addMessage('System', '❌ Error: ' + error.message);
+                });
+            }
+
+            function addMessage(sender, message, isTemp = false) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `chat-bubble ${
+                    sender === 'User' 
+                        ? 'ml-auto glass-card bg-white/10' 
+                        : sender === 'System'
+                        ? 'glass-card bg-yellow-500/10'
+                        : 'glass-card bg-white/5'
+                } p-4 rounded-xl mb-4 max-w-3/4`;
+                
+                const icon = sender === 'User' ? '👤' : sender === 'Assistant' ? '🤖' : '⚙️';
+                messageDiv.innerHTML = `
+                    <div class="flex items-center gap-2 mb-1 text-white/60">
+                        <span>${icon} ${sender}</span>
+                    </div>
+                    <p class="text-white/90">${message}</p>
+                `;
+                
+                chatMessages.appendChild(messageDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+                return messageDiv;
+            }
+
+            // Initialize new session
+            fetch('/new_session', {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    localStorage.setItem('session_id', data.session_id);
+                }
+            });
+
+            // Smooth scroll for navigation
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+
+            // Add floating particles
+            const createParticle = () => {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.width = Math.random() * 150 + 50 + 'px';
+                particle.style.height = particle.style.width;
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = -Math.random() * 20 + 's';
+                document.querySelector('.animated-bg').appendChild(particle);
+            };
+
+            // Create multiple particles
+            for (let i = 0; i < 6; i++) {
+                createParticle();
+            }
+        });
+    </script>
+</body>
+</html>
