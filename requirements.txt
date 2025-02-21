@@ -6,7 +6,7 @@ langchain-core
 langchain-groq
 langchain-huggingface
 langchain-text-splitters
-faiss-cpu
+faiss-cpu==1.7.4
 torch
 transformers
 langsmith
@@ -14,3 +14,4 @@ requests
 werkzeug
 pypdf
 pikepdf
+gunicorn
